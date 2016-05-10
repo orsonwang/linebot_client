@@ -40,7 +40,6 @@ func callbackHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	for _, result := range received.Results {
 		content := result.Content()
-		//		log.Println("content:%s\n", content)
 
 		if content.OpType == linebot.OpTypeAddedAsFriend {
 			MIDs := result.RawContent.Params
@@ -127,7 +126,7 @@ func (be *BotEventHandler) OnBlockedAccountOperation(mids []string) {
 // OnTextMessage ...
 func (be *BotEventHandler) OnTextMessage(from, text string) {
 	botClient.SendText([]string{from}, text)
-	log.Print("Received text \"%s\" from %s", text, from)
+	log.Printf("Received text \"%s\" from %s", text, from)
 }
 
 // OnImageMessage ...
