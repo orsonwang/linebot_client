@@ -64,7 +64,7 @@ func callbackHandler(w http.ResponseWriter, r *http.Request) {
 				log.Print(err)
 				return
 			}
-			eventHandler.OnImageMessage(content.From)
+			eventHandler.OnImageMessage(content.From, imageContent.ReceivedContent)
 		}
 		if content.ContentType == linebot.ContentTypeVideo {
 			videoContent, err := content.VideoContent()
@@ -72,7 +72,7 @@ func callbackHandler(w http.ResponseWriter, r *http.Request) {
 				log.Print(err)
 				return
 			}
-			eventHandler.OnVideoMessage(content.From)
+			eventHandler.OnVideoMessage(content.From, videoContent.ReceivedContent)
 		}
 		if content.ContentType == linebot.ContentTypeAudio {
 			audioContent, err := content.AudioContent()
@@ -131,13 +131,13 @@ func (be *BotEventHandler) OnTextMessage(from, text string) {
 }
 
 // OnImageMessage ...
-func (be *BotEventHandler) OnImageMessage(from string) {
+func (be *BotEventHandler) OnImageMessage(from string, rc *linebot.ReceivedContent) {
 	botClient.SendText([]string{from}, "收到一張照片")
 	log.Print("=== Received Image ===")
 }
 
 // OnVideoMessage ...
-func (be *BotEventHandler) OnVideoMessage(from string) {
+func (be *BotEventHandler) OnVideoMessage(from string, rc *linebot.ReceivedContent) {
 	botClient.SendText([]string{from}, "收到一段錄影")
 	log.Print("=== Received Video ===")
 }
