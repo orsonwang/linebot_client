@@ -12,8 +12,6 @@ import (
 
 var botClient *linebot.Client
 
-//var eventHandler BotEventHandler
-
 func main() {
 	strID := os.Getenv("LINE_CHANNEL_ID")
 	channelID, err := strconv.ParseInt(strID, 10, 64)
@@ -43,71 +41,79 @@ func callbackHandler(w http.ResponseWriter, r *http.Request) {
 
 	for _, result := range received.Results {
 		content := result.Content()
+		switch content.OpType {
+		case linebot.OpTypeAddedAsFriend:
+			eventHandler.OnAddedAsFriendOperation(result.RawContent.Params)
+			break
+		case linebot.OpTypeBlocked:
+			eventHandler.OnBlockedAccountOperation(result.RawContent.Params)
+			break
+		default:
+			handleContentByType(eventHandler, content)
+			break
+		}
+	}
 
-		if content.OpType == linebot.OpTypeAddedAsFriend {
-			MIDs := result.RawContent.Params
-			eventHandler.OnAddedAsFriendOperation(MIDs)
+}
+
+func handleContentByType(eventHandler *LineBotEventHandler, content *linebot.ReceivedContent) {
+	switch content.ContentType {
+	case linebot.ContentTypeText:
+		textContent, err := content.TextContent()
+		if err != nil {
+			log.Print(err)
+			return
 		}
-		if content.OpType == linebot.OpTypeBlocked {
-			MIDs := result.RawContent.Params
-			eventHandler.OnBlockedAccountOperation(MIDs)
+		eventHandler.OnTextMessage(content.From, textContent.Text)
+		break
+	case linebot.ContentTypeImage:
+		imageContent, err := content.ImageContent()
+		if err != nil {
+			log.Print(err)
+			return
 		}
-		if content.ContentType == linebot.ContentTypeText {
-			textContent, err := content.TextContent()
-			if err != nil {
-				log.Print(err)
-				return
-			}
-			eventHandler.OnTextMessage(content.From, textContent.Text)
+		eventHandler.OnImageMessage(content.From, imageContent.ReceivedContent)
+		break
+	case linebot.ContentTypeVideo:
+		videoContent, err := content.VideoContent()
+		if err != nil {
+			log.Print(err)
+			return
 		}
-		if content.ContentType == linebot.ContentTypeImage {
-			imageContent, err := content.ImageContent()
-			if err != nil {
-				log.Print(err)
-				return
-			}
-			eventHandler.OnImageMessage(content.From, imageContent.ReceivedContent)
+		eventHandler.OnVideoMessage(content.From, videoContent.ReceivedContent)
+		break
+	case linebot.ContentTypeAudio:
+		audioContent, err := content.AudioContent()
+		if err != nil {
+			log.Print(err)
+			return
 		}
-		if content.ContentType == linebot.ContentTypeVideo {
-			videoContent, err := content.VideoContent()
-			if err != nil {
-				log.Print(err)
-				return
-			}
-			eventHandler.OnVideoMessage(content.From, videoContent.ReceivedContent)
+		eventHandler.OnAudioMessage(content.From, audioContent.Duration)
+		break
+	case linebot.ContentTypeLocation:
+		stickerContent, err := content.StickerContent()
+		if err != nil {
+			log.Print(err)
+			return
 		}
-		if content.ContentType == linebot.ContentTypeAudio {
-			audioContent, err := content.AudioContent()
-			if err != nil {
-				log.Print(err)
-				return
-			}
-			eventHandler.OnAudioMessage(content.From, audioContent.Duration)
+		eventHandler.OnStickerMessage(content.From, stickerContent.ID, stickerContent.PackageID, stickerContent.Version)
+		break
+	case linebot.ContentTypeSticker:
+		stickerContent, err := content.StickerContent()
+		if err != nil {
+			log.Print(err)
+			return
 		}
-		if content.ContentType == linebot.ContentTypeLocation {
-			locationContent, err := content.LocationContent()
-			if err != nil {
-				log.Print(err)
-				return
-			}
-			eventHandler.OnLocationMessage(content.From, locationContent.Title, locationContent.Address, locationContent.Latitude, locationContent.Longitude)
+		eventHandler.OnStickerMessage(content.From, stickerContent.ID, stickerContent.PackageID, stickerContent.Version)
+		break
+	case linebot.ContentTypeContact:
+		contactContent, err := content.ContactContent()
+		if err != nil {
+			log.Print(err)
+			return
 		}
-		if content.ContentType == linebot.ContentTypeSticker {
-			stickerContent, err := content.StickerContent()
-			if err != nil {
-				log.Print(err)
-				return
-			}
-			eventHandler.OnStickerMessage(content.From, stickerContent.ID, stickerContent.PackageID, stickerContent.Version)
-		}
-		if content.ContentType == linebot.ContentTypeContact {
-			contactContent, err := content.ContactContent()
-			if err != nil {
-				log.Print(err)
-				return
-			}
-			eventHandler.OnContactMessage(content.From, contactContent.Mid, contactContent.DisplayName)
-		}
+		eventHandler.OnContactMessage(content.From, contactContent.Mid, contactContent.DisplayName)
+		break
 	}
 
 }
