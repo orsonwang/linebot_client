@@ -40,9 +40,8 @@ func callbackHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	for _, result := range received.Results {
 		content := result.Content()
-		log.Println("content:%s\n", content)
+		//		log.Println("content:%s\n", content)
 
-		from := content.From
 		if content.OpType == linebot.OpTypeAddedAsFriend {
 			MIDs := result.RawContent.Params
 			eventHandler.OnAddedAsFriendOperation(MIDs)
@@ -52,13 +51,12 @@ func callbackHandler(w http.ResponseWriter, r *http.Request) {
 			eventHandler.OnBlockedAccountOperation(MIDs)
 		}
 		if content.ContentType == linebot.ContentTypeText {
-			from := content.From
 			textContent, err := content.TextContent()
 			if err != nil {
 				log.Print(err)
 				return
 			}
-			eventHandler.OnTextMessage(from, textContent.Text)
+			eventHandler.OnTextMessage(content.From, textContent.Text)
 		}
 		if content.ContentType == linebot.ContentTypeImage {
 			imageContent, err := content.ImageContent()
@@ -66,7 +64,7 @@ func callbackHandler(w http.ResponseWriter, r *http.Request) {
 				log.Print(err)
 				return
 			}
-			eventHandler.OnImageMessage(from)
+			eventHandler.OnImageMessage(content.From)
 		}
 		if content.ContentType == linebot.ContentTypeVideo {
 			videoContent, err := content.VideoContent()
@@ -74,7 +72,7 @@ func callbackHandler(w http.ResponseWriter, r *http.Request) {
 				log.Print(err)
 				return
 			}
-			eventHandler.OnVideoMessage(from)
+			eventHandler.OnVideoMessage(content.From)
 		}
 		if content.ContentType == linebot.ContentTypeAudio {
 			audioContent, err := content.AudioContent()
@@ -82,7 +80,7 @@ func callbackHandler(w http.ResponseWriter, r *http.Request) {
 				log.Print(err)
 				return
 			}
-			eventHandler.OnAudioMessage(from, audioContent.Duration)
+			eventHandler.OnAudioMessage(content.From, audioContent.Duration)
 		}
 		if content.ContentType == linebot.ContentTypeLocation {
 			locationContent, err := content.LocationContent()
@@ -90,7 +88,7 @@ func callbackHandler(w http.ResponseWriter, r *http.Request) {
 				log.Print(err)
 				return
 			}
-			eventHandler.OnLocationMessage(from, locationContent.Title, locationContent.Address, locationContent.Latitude, locationContent.Longitude)
+			eventHandler.OnLocationMessage(content.From, locationContent.Title, locationContent.Address, locationContent.Latitude, locationContent.Longitude)
 		}
 		if content.ContentType == linebot.ContentTypeSticker {
 			stickerContent, err := content.StickerContent()
@@ -98,7 +96,7 @@ func callbackHandler(w http.ResponseWriter, r *http.Request) {
 				log.Print(err)
 				return
 			}
-			eventHandler.OnStickerMessage(from, stickerContent.ID, stickerContent.PackageID, stickerContent.Version)
+			eventHandler.OnStickerMessage(content.From, stickerContent.ID, stickerContent.PackageID, stickerContent.Version)
 		}
 		if content.ContentType == linebot.ContentTypeContact {
 			contactContent, err := content.ContactContent()
@@ -106,7 +104,7 @@ func callbackHandler(w http.ResponseWriter, r *http.Request) {
 				log.Print(err)
 				return
 			}
-			eventHandler.OnContactMessage(from, contactContent.Mid, contactContent.DisplayName)
+			eventHandler.OnContactMessage(content.From, contactContent.Mid, contactContent.DisplayName)
 		}
 	}
 
@@ -129,7 +127,7 @@ func (be *BotEventHandler) OnBlockedAccountOperation(mids []string) {
 // OnTextMessage ...
 func (be *BotEventHandler) OnTextMessage(from, text string) {
 	botClient.SendText([]string{from}, text)
-	log.Print("=== Received Text ===")
+	log.Print("Received text \"%s\" from %s", text, from)
 }
 
 // OnImageMessage ...
