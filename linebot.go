@@ -1,4 +1,4 @@
-package main
+package linebot_client
 
 import (
 	"fmt"
@@ -12,7 +12,7 @@ import (
 
 var botClient *linebot.Client
 
-var eventHandler BotEventHandler
+//var eventHandler BotEventHandler
 
 func main() {
 	strID := os.Getenv("LINE_CHANNEL_ID")
@@ -38,6 +38,9 @@ func callbackHandler(w http.ResponseWriter, r *http.Request) {
 		log.Print(err)
 		return
 	}
+	eventHandler := new(LineBotEventHandler)
+	eventHandler.setLineBotClient(botClient)
+
 	for _, result := range received.Results {
 		content := result.Content()
 
@@ -107,60 +110,4 @@ func callbackHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-}
-
-// BotEventHandler ...
-type BotEventHandler struct {
-}
-
-// OnAddedAsFriendOperation ...
-func (be *BotEventHandler) OnAddedAsFriendOperation(mids []string) {
-	botClient.SendText(mids, "感謝你加入....！")
-}
-
-// OnBlockedAccountOperation ...
-func (be *BotEventHandler) OnBlockedAccountOperation(mids []string) {
-	botClient.SendText(mids, "被封鎖了")
-}
-
-// OnTextMessage ...
-func (be *BotEventHandler) OnTextMessage(from, text string) {
-	botClient.SendText([]string{from}, text)
-	log.Printf("Received text \"%s\" from %s", text, from)
-}
-
-// OnImageMessage ...
-func (be *BotEventHandler) OnImageMessage(from string, rc *linebot.ReceivedContent) {
-	botClient.SendText([]string{from}, "收到一張照片")
-	log.Print("=== Received Image ===")
-}
-
-// OnVideoMessage ...
-func (be *BotEventHandler) OnVideoMessage(from string, rc *linebot.ReceivedContent) {
-	botClient.SendText([]string{from}, "收到一段錄影")
-	log.Print("=== Received Video ===")
-}
-
-// OnAudioMessage ...
-func (be *BotEventHandler) OnAudioMessage(from string, duration int) {
-	botClient.SendText([]string{from}, "收到一段錄音")
-	log.Print("=== Received Audio ===")
-}
-
-// OnLocationMessage ...
-func (be *BotEventHandler) OnLocationMessage(from, title, address string, latitude, longitude float64) {
-	botClient.SendText([]string{from}, "收到地點資訊")
-	log.Print("=== Received Location ===")
-}
-
-// OnStickerMessage ...
-func (be *BotEventHandler) OnStickerMessage(from string, stickerPackageID, stickerID, stickerVersion int) {
-	botClient.SendText([]string{from}, "收到一張貼紙")
-	log.Print("=== Received Sticker ===")
-}
-
-// OnContactMessage ...
-func (be *BotEventHandler) OnContactMessage(from, MID, displayName string) {
-	botClient.SendText([]string{from}, "收到聯絡人資料")
-	log.Print("=== Received Contact ===")
 }
