@@ -1,4 +1,4 @@
-package linebot_client
+package main
 
 import (
 	"log"
