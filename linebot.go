@@ -25,10 +25,6 @@ func main() {
 
 	botClient, err = linebot.NewClient(channelID, channelSecret, mid)
 
-	// EventHandler
-	//	eventHandler = NewEventHandler()
-	//	botClient.SetEventHandler(eventHandler)
-
 	http.HandleFunc("/callback", callbackHandler)
 	port := os.Getenv("LINEBOT_PORT")
 	addr := fmt.Sprintf(":%s", port)
@@ -65,13 +61,28 @@ func callbackHandler(w http.ResponseWriter, r *http.Request) {
 			eventHandler.OnTextMessage(from, textContent.Text)
 		}
 		if content.ContentType == linebot.ContentTypeImage {
+			imageContent, err := content.ImageContent()
+			if err != nil {
+				log.Print(err)
+				return
+			}
 			eventHandler.OnImageMessage(from)
 		}
 		if content.ContentType == linebot.ContentTypeVideo {
+			videoContent, err := content.VideoContent()
+			if err != nil {
+				log.Print(err)
+				return
+			}
 			eventHandler.OnVideoMessage(from)
 		}
 		if content.ContentType == linebot.ContentTypeAudio {
-			eventHandler.OnAudioMessage(from)
+			audioContent, err := content.AudioContent()
+			if err != nil {
+				log.Print(err)
+				return
+			}
+			eventHandler.OnAudioMessage(from, audioContent.Duration)
 		}
 		if content.ContentType == linebot.ContentTypeLocation {
 			locationContent, err := content.LocationContent()
@@ -105,52 +116,54 @@ func callbackHandler(w http.ResponseWriter, r *http.Request) {
 type BotEventHandler struct {
 }
 
-// NewEventHandler ...
-func NewEventHandler() *BotEventHandler {
-	return &BotEventHandler{}
-}
-
 // OnAddedAsFriendOperation ...
 func (be *BotEventHandler) OnAddedAsFriendOperation(mids []string) {
-	botClient.SendText(mids, "友達追加してくれてありがとうね！")
+	botClient.SendText(mids, "感謝你加入....！")
 }
 
 // OnBlockedAccountOperation ...
 func (be *BotEventHandler) OnBlockedAccountOperation(mids []string) {
-	botClient.SendText(mids, "あらら,,, (このメッセージは届かない)")
+	botClient.SendText(mids, "被封鎖了")
 }
 
 // OnTextMessage ...
 func (be *BotEventHandler) OnTextMessage(from, text string) {
+	botClient.SendText([]string{from}, text)
 	log.Print("=== Received Text ===")
 }
 
 // OnImageMessage ...
 func (be *BotEventHandler) OnImageMessage(from string) {
+	botClient.SendText([]string{from}, "收到一張照片")
 	log.Print("=== Received Image ===")
 }
 
 // OnVideoMessage ...
 func (be *BotEventHandler) OnVideoMessage(from string) {
+	botClient.SendText([]string{from}, "收到一段錄影")
 	log.Print("=== Received Video ===")
 }
 
 // OnAudioMessage ...
-func (be *BotEventHandler) OnAudioMessage(from string) {
+func (be *BotEventHandler) OnAudioMessage(from string, duration int) {
+	botClient.SendText([]string{from}, "收到一段錄音")
 	log.Print("=== Received Audio ===")
 }
 
 // OnLocationMessage ...
 func (be *BotEventHandler) OnLocationMessage(from, title, address string, latitude, longitude float64) {
+	botClient.SendText([]string{from}, "收到地點資訊")
 	log.Print("=== Received Location ===")
 }
 
 // OnStickerMessage ...
 func (be *BotEventHandler) OnStickerMessage(from string, stickerPackageID, stickerID, stickerVersion int) {
+	botClient.SendText([]string{from}, "收到一張貼紙")
 	log.Print("=== Received Sticker ===")
 }
 
 // OnContactMessage ...
 func (be *BotEventHandler) OnContactMessage(from, MID, displayName string) {
+	botClient.SendText([]string{from}, "收到聯絡人資料")
 	log.Print("=== Received Contact ===")
 }
