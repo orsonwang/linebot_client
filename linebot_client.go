@@ -91,12 +91,12 @@ func handleContentByType(eventHandler *LineBotEventHandler, content *linebot.Rec
 		eventHandler.OnAudioMessage(content.From, audioContent.Duration)
 		break
 	case linebot.ContentTypeLocation:
-		stickerContent, err := content.StickerContent()
+		locationContent, err := content.LocationContent()
 		if err != nil {
 			log.Print(err)
 			return
 		}
-		eventHandler.OnStickerMessage(content.From, stickerContent.ID, stickerContent.PackageID, stickerContent.Version)
+		eventHandler.OnLocationMessage(content.From, locationContent.Title, locationContent.Address, locationContent.Latitude, locationContent.Longitude)
 		break
 	case linebot.ContentTypeSticker:
 		stickerContent, err := content.StickerContent()
