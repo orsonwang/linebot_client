@@ -58,21 +58,21 @@ func (lbe *LineBotEventHandler) OnTextMessage(from, text string) {
 		if strings.Contains(strAfterCut,"歷史") {
 			strResult = "歷史匯率參考 https://www.skbank.com.tw/RAT/RAT2_Historys.aspx"
 		} else if strings.Contains(strAfterCut,"美元") || strings.Contains(strAfterCut,"美金") {
-			strResult = `      現金買入  現金賣出  即期買入   即期賣出\n 
-						 美元  32.32000 32.86200 32.62000 32.72000\n`
+			strResult = "      現金買入  現金賣出  即期買入   即期賣出\n" +
+						"美元  32.32000 32.86200 32.62000 32.72000\n"
 		} else if strings.Contains(strAfterCut,"日圓") || strings.Contains(strAfterCut,"日幣") {
-			strResult = `      現金買入  現金賣出  即期買入   即期賣出\n
-						 日圓  0.29160  0.30260  0.29800  0.30200\n`
+			strResult = "      現金買入  現金賣出  即期買入   即期賣出\n"+
+						"日圓  0.29160  0.30260  0.29800  0.30200\n"
 		} else if strings.Contains(strAfterCut,"日圓") || strings.Contains(strAfterCut,"日幣") {
-			strResult = `       現金買入  現金賣出  即期買入   即期賣出\n
-						 人民幣  4.89000  5.05200  4.96200  5.01200\n`
+			strResult = "       現金買入  現金賣出  即期買入   即期賣出\n" +
+						"人民幣  4.89000  5.05200  4.96200  5.01200\n"
 		} else {	
-			strResult = `常用外幣匯率 \n
-						       現金      現金      即期     即期\n
-						 幣別	  賣出      買進      賣出     買進\n
-						 美元   32.32000 32.86200 32.62000 32.72000\n
-						 日圓    0.29160  0.30260  0.29800  0.30200\n 
-						 人民幣  4.89000  5.05200  4.96200  5.01200\n` 
+			strResult = "常用外幣匯率 \n"+
+						"      現金      現金      即期     即期\n"+
+						"幣別	  賣出      買進      賣出     買進\n"+
+						"美元   32.32000 32.86200 32.62000 32.72000\n"+
+						"日圓    0.29160  0.30260  0.29800  0.30200\n"+ 
+						"人民幣  4.89000  5.05200  4.96200  5.01200\n" 
 		}
 	} 
         if strings.Contains(strAfterCut,"行動") {
