@@ -51,14 +51,28 @@ func (lbe *LineBotEventHandler) OnTextMessage(from, text string) {
 		if strings.Contains(strAfterCut,"外幣") {
 			strResult = "常用外幣利率表\n 美元 定存 2.3% 活存 1.8% \n 日圓 定存 0.1% 活存 0.1%"
 		} else {
-			strResult = "台幣活存利率表 \n 活存 0.5% 活儲 0.6% \n 定存\n 三個月 0.76% 六個月 0.78% 一年 0.80% 三年 0.80%</P> <A href=\"https://www.skbank.com.tw/RAT/RAT2_TWSaving.aspx\"> 台幣利率</A>"
+			strResult = "台幣活存利率表 \n 活存 0.5% 活儲 0.6% \n 定存\n 三個月 0.76% 六個月 0.78% 一年 0.80% 三年 0.80%\n https://www.skbank.com.tw/RAT/RAT2_TWSaving.aspx"
 		}
 	}
 	if strings.Contains(strAfterCut,"匯率") {
 		if strings.Contains(strAfterCut,"歷史") {
-			strResult = "</P> <A href=\"https://www.skbank.com.tw/RAT/RAT2_Historys.aspx\"> 歷史匯率</A>"
-		} else {
-			strResult = "</P> <A href=\"https://www.skbank.com.tw/RAT/RAT2_Foreigns.aspx\"> 外幣匯率</A>"
+			strResult = "歷史匯率參考 https://www.skbank.com.tw/RAT/RAT2_Historys.aspx"
+		} else if strings.Contains(strAfterCut,"美元") || strings.Contains(strAfterCut,"美金") {
+			strResult = `      現金買入  現金賣出  即期買入   即期賣出\n 
+						 美元  32.32000 32.86200 32.62000 32.72000\n`
+		} else if strings.Contains(strAfterCut,"日圓") || strings.Contains(strAfterCut,"日幣") {
+			strResult = `      現金買入  現金賣出  即期買入   即期賣出\n
+						 日圓  0.29160  0.30260  0.29800  0.30200\n`
+		} else if strings.Contains(strAfterCut,"日圓") || strings.Contains(strAfterCut,"日幣") {
+			strResult = `       現金買入  現金賣出  即期買入   即期賣出\n
+						 人民幣  4.89000  5.05200  4.96200  5.01200\n`
+		} else {	
+			strResult = `常用外幣匯率 \n
+						       現金      現金      即期     即期\n
+						 幣別	  賣出      買進      賣出     買進\n
+						 美元   32.32000 32.86200 32.62000 32.72000\n
+						 日圓    0.29160  0.30260  0.29800  0.30200\n 
+						 人民幣  4.89000  5.05200  4.96200  5.01200\n` 
 		}
 	} 
         if strings.Contains(strAfterCut,"行動") {
