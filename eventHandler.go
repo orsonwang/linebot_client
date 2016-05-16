@@ -46,21 +46,28 @@ func (lbe *LineBotEventHandler) OnTextMessage(from, text string) {
 	*/
 
 	// 以下只是一個非智慧型示範，跟以上斷字無關
-	strAfterCut := text
+	strAfterCut := strings.ToUpper(text)
 	strResult := "目前系統功能如下\n" +
 		"利率(預設為台幣),外幣利率\n" +
-		"匯率(預設為總表),美元匯率,日圓匯率與人民幣匯率\n" +
-		"歷史匯率"
+		"匯率(預設為總表),美元,日圓與人民幣匯率\n" +
+		"歷史匯率\n" +
+		"台外幣各類存款餘額"
 	if strings.Contains(strAfterCut, "利率") {
 		if strings.Contains(strAfterCut, "外幣") {
 			strResult = "常用外幣利率表\n 美元 定存 2.3% 活存 1.8% \n 日圓 定存 0.1% 活存 0.1%"
 		} else {
 			strResult = "台幣活存利率表 \n 活存 0.5% 活儲 0.6% \n 定存\n 三個月 0.76% 六個月 0.78% 一年 0.80% 三年 0.80%\n https://www.skbank.com.tw/RAT/RAT2_TWSaving.aspx"
 		}
-	}
-	if strings.Contains(strAfterCut, "匯率") {
+	} else if strings.Contains(strAfterCut, "匯率") {
 		if strings.Contains(strAfterCut, "歷史") {
-			strResult = "歷史匯率參考 https://www.skbank.com.tw/RAT/RAT2_Historys.aspx"
+			strResult = "歷史匯率參考 http://tw.exchange-rates.org/history/TWD/USD/T"
+			if strings.Contains(strAfterCut, "美元") || strings.Contains(strAfterCut, "美金") || strings.Contains(strAfterCut, "USD") {
+				strResult = "美元歷史匯率參考 http://tw.exchange-rates.org/history/TWD/USD/T"
+			} else if strings.Contains(strAfterCut, "日圓") || strings.Contains(strAfterCut, "日幣") || strings.Contains(strAfterCut, "日元") {
+				strResult = "日元歷史匯率參考 http://tw.exchange-rates.org/history/TWD/JPY/T"
+			} else if strings.Contains(strAfterCut, "人民幣") {
+				strResult = "人民幣歷史匯率參考 http://tw.exchange-rates.org/history/TWD/CNY/T"
+			}
 		} else if strings.Contains(strAfterCut, "美元") || strings.Contains(strAfterCut, "美金") {
 			strResult = "美元\n" +
 				"現金買入 32.32000\n" +
@@ -80,23 +87,61 @@ func (lbe *LineBotEventHandler) OnTextMessage(from, text string) {
 				"即期買入 4.96200\n" +
 				"即期賣出 5.01200"
 		} else {
-			/*
-				strResult = "常用外幣匯率 \n"+
-							"      現金      現金      即期     即期\n"+
-							"幣別	  賣出      買進      賣出     買進\n"+
-							"美元   32.32000 32.86200 32.62000 32.72000\n"+
-							"日圓    0.29160  0.30260  0.29800  0.30200\n"+
-							"人民幣  4.89000  5.05200  4.96200  5.01200\n"
+			/* http://tw.exchange-rates.org/currentRates/P/TWD
+			strResult = "常用外幣匯率 \n"+
+						"      現金      現金      即期     即期\n"+
+						"幣別	  賣出      買進      賣出     買進\n"+
+						"美元   32.32000 32.86200 32.62000 32.72000\n"+
+						"日圓    0.29160  0.30260  0.29800  0.30200\n"+
+						"人民幣  4.89000  5.05200  4.96200  5.01200\n"
 			*/
 			strResult = ""
 			lbe.botClient.SendImage([]string{from}, "https://linebot.gaze.tw/exrate.png", "https://linebot.gaze.tw/exrate.png")
 		}
-	}
-	if strings.Contains(strAfterCut, "行動") {
+	} else if strings.Contains(strAfterCut, "行動") {
 		if strings.Contains(strAfterCut, "應用") || strings.Contains(strings.ToUpper(strAfterCut), "APP") {
 			strResult = "</P> 請參考 https://itunes.apple.com/tw/app/xin-guang-yin-xing/id495872725?l=zh&mt=8"
 		} else if strings.Contains(strAfterCut, "網頁") {
 			strResult = "很抱歉，我們還沒有建置行動網頁，請使用 https://www.skbank.com.tw/ 網路銀行或 https://itunes.apple.com/tw/app/xin-guang-yin-xing/id495872725?l=zh&mt=8 行動銀行"
+		}
+	} else if strings.Contains(strAfterCut, "餘額") {
+		if strings.Contains(strAfterCut, "美元") || strings.Contains(strAfterCut, "美金") || strings.Contains(strAfterCut, "USD") {
+			if strings.Contains(strAfterCut, "活存") {
+				strResult = "您的美元活存帳戶餘額為: 233,188.66 美元"
+			} else if strings.Contains(strAfterCut, "定存") {
+				strResult = "您的美元定存帳戶餘額為: 1,000.00 美元"
+			} else {
+				strResult = "您的美元活存帳戶餘額為: 233,188.66 美元\n" +
+					"您的美元定存帳戶餘額為: 1,000.00 美元"
+			}
+		} else if strings.Contains(strAfterCut, "日圓") || strings.Contains(strAfterCut, "日元") || strings.Contains(strAfterCut, "日幣") || strings.Contains(strAfterCut, "JPY") {
+			if strings.Contains(strAfterCut, "活存") {
+				strResult = "您的日元活存帳戶餘額為: 233,188.66 日元"
+			} else if strings.Contains(strAfterCut, "定存") {
+				strResult = "您沒有日元定存帳戶"
+			} else {
+				strResult = "您的日元活存帳戶餘額為: 233,188.66 日元"
+			}
+
+		} else if strings.Contains(strAfterCut, "外幣") {
+			if strings.Contains(strAfterCut, "活存") {
+				strResult = "您的美元活存帳戶餘額為: 233,188.66 美元\n " +
+					"您的日元活存帳戶餘額為: 233,188.66 日元"
+			} else if strings.Contains(strAfterCut, "定存") {
+				strResult = "您的美元定存帳戶餘額為: 1,000.00 美元\n"
+			} else {
+				strResult = "您的美元活存帳戶餘額為: 233,188.66 美元\n " +
+					"您的日元活存帳戶餘額為: 233,188.66 日元\n" +
+					"您的美元定存帳戶餘額為: 1,000.00 美元\n"
+			}
+
+		} else if strings.Contains(strAfterCut, "活存") {
+			strResult = "您的台幣活存帳戶餘額為: 233,188.66 元\n "
+		} else if strings.Contains(strAfterCut, "定存") {
+			strResult = "您的台幣定存帳戶餘額為: 1,000,000.00 元\n"
+		} else {
+			strResult = "您的台幣活存帳戶餘額為: 233,188.66 元\n " +
+				"您的台幣定存帳戶餘額為: 1,000,000.00 元\n"
 		}
 	}
 	if strResult != "" {
