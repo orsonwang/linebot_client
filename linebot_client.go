@@ -10,7 +10,8 @@ import (
 	"github.com/line/line-bot-sdk-go/linebot"
 )
 
-var botClient *linebot.Client
+var mainBotClient *linebot.Client
+var mainEventHandler *LineBotEventHandler
 
 func main() {
 	strID := os.Getenv("LINE_CHANNEL_ID")
@@ -21,7 +22,10 @@ func main() {
 	channelSecret := os.Getenv("LINE_CHANNEL_SECRET")
 	mid := os.Getenv("LINE_MID")
 
-	botClient, err = linebot.NewClient(channelID, channelSecret, mid)
+	mainBotClient, _ = linebot.NewClient(channelID, channelSecret, mid)
+
+	mainEventHandler = new(LineBotEventHandler)
+	mainEventHandler.SetLineBotClient(mainBotClient)
 
 	http.HandleFunc("/callback", callbackHandler)
 	port := os.Getenv("LINEBOT_PORT")
@@ -30,26 +34,23 @@ func main() {
 }
 
 func callbackHandler(w http.ResponseWriter, r *http.Request) {
-	log.Println("=== callback ===\n")
-	received, err := botClient.ParseRequest(r)
+	log.Println("=== callback ===")
+	received, err := mainBotClient.ParseRequest(r)
 	if err != nil {
 		log.Print(err)
 		return
 	}
-	eventHandler := new(LineBotEventHandler)
-	eventHandler.setLineBotClient(botClient)
-
 	for _, result := range received.Results {
 		content := result.Content()
 		switch content.OpType {
 		case linebot.OpTypeAddedAsFriend:
-			eventHandler.OnAddedAsFriendOperation(result.RawContent.Params)
+			mainEventHandler.OnAddedAsFriendOperation(result.RawContent.Params)
 			break
 		case linebot.OpTypeBlocked:
-			eventHandler.OnBlockedAccountOperation(result.RawContent.Params)
+			mainEventHandler.OnBlockedAccountOperation(result.RawContent.Params)
 			break
 		default:
-			handleContentByType(eventHandler, content)
+			handleContentByType(mainEventHandler, content)
 			break
 		}
 	}
