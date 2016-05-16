@@ -2,7 +2,7 @@ package main
 
 import (
 	"log"
-//	"fmt"
+	//	"fmt"
 	"strings"
 
 	"github.com/line/line-bot-sdk-go/linebot"
@@ -12,7 +12,7 @@ import (
 // LineBotEventHandler ...
 type LineBotEventHandler struct {
 	botClient *linebot.Client
-	seg *jiebago.Segmenter
+	seg       *jiebago.Segmenter
 }
 
 // SetLineBotClient to assign linebot client handler
@@ -24,6 +24,7 @@ func (lbe *LineBotEventHandler) SetLineBotClient(bc *linebot.Client) {
 func (lbe *LineBotEventHandler) InitSegmenter() {
 	lbe.seg.LoadDictionary("dict.txt")
 }
+
 // OnAddedAsFriendOperation ...
 func (lbe *LineBotEventHandler) OnAddedAsFriendOperation(mids []string) {
 	lbe.botClient.SendText(mids, "感謝你加入....！")
@@ -36,54 +37,59 @@ func (lbe *LineBotEventHandler) OnBlockedAccountOperation(mids []string) {
 
 // OnTextMessage ...
 func (lbe *LineBotEventHandler) OnTextMessage(from, text string) {
-/*
-	chanAfterCut := lbe.seg.Cut(text, false) // 進行精確斷字，斷字結果以空白間隔，後續就可以用它做語意操作
-	strAfterCut := "" // 因為Jiebago的輸出是channel，所以先把它轉換成字串陣列
-	for strCutMeta := range chanAfterCut {
-		strAfterCut += "," + strCutMeta
-        }	
-*/
+	/*
+	   	chanAfterCut := lbe.seg.Cut(text, false) // 進行精確斷字，斷字結果以空白間隔，後續就可以用它做語意操作
+	   	strAfterCut := "" // 因為Jiebago的輸出是channel，所以先把它轉換成字串陣列
+	   	for strCutMeta := range chanAfterCut {
+	   		strAfterCut += "," + strCutMeta
+	           }
+	*/
 
-// 以下只是一個非智慧型示範，跟以上斷字無關
+	// 以下只是一個非智慧型示範，跟以上斷字無關
 	strAfterCut := text
-    strResult := text
-	if strings.Contains(strAfterCut,"利率") {
-		if strings.Contains(strAfterCut,"外幣") {
+	strResult := text
+	if strings.Contains(strAfterCut, "利率") {
+		if strings.Contains(strAfterCut, "外幣") {
 			strResult = "常用外幣利率表\n 美元 定存 2.3% 活存 1.8% \n 日圓 定存 0.1% 活存 0.1%"
 		} else {
 			strResult = "台幣活存利率表 \n 活存 0.5% 活儲 0.6% \n 定存\n 三個月 0.76% 六個月 0.78% 一年 0.80% 三年 0.80%\n https://www.skbank.com.tw/RAT/RAT2_TWSaving.aspx"
 		}
 	}
-	if strings.Contains(strAfterCut,"匯率") {
-		if strings.Contains(strAfterCut,"歷史") {
+	if strings.Contains(strAfterCut, "匯率") {
+		if strings.Contains(strAfterCut, "歷史") {
 			strResult = "歷史匯率參考 https://www.skbank.com.tw/RAT/RAT2_Historys.aspx"
-		} else if strings.Contains(strAfterCut,"美元") || strings.Contains(strAfterCut,"美金") {
+		} else if strings.Contains(strAfterCut, "美元") || strings.Contains(strAfterCut, "美金") {
 			strResult = "      現金買入  現金賣出  即期買入   即期賣出\n" +
-						"美元  32.32000 32.86200 32.62000 32.72000\n"
-		} else if strings.Contains(strAfterCut,"日圓") || strings.Contains(strAfterCut,"日幣") {
-			strResult = "      現金買入  現金賣出  即期買入   即期賣出\n"+
-						"日圓  0.29160  0.30260  0.29800  0.30200\n"
-		} else if strings.Contains(strAfterCut,"日圓") || strings.Contains(strAfterCut,"日幣") {
+				"美元  32.32000 32.86200 32.62000 32.72000\n"
+		} else if strings.Contains(strAfterCut, "日圓") || strings.Contains(strAfterCut, "日幣") {
+			strResult = "      現金買入  現金賣出  即期買入   即期賣出\n" +
+				"日圓  0.29160  0.30260  0.29800  0.30200\n"
+		} else if strings.Contains(strAfterCut, "日圓") || strings.Contains(strAfterCut, "日幣") {
 			strResult = "       現金買入  現金賣出  即期買入   即期賣出\n" +
-						"人民幣  4.89000  5.05200  4.96200  5.01200\n"
-		} else {	
-			strResult = "常用外幣匯率 \n"+
-						"      現金      現金      即期     即期\n"+
-						"幣別	  賣出      買進      賣出     買進\n"+
-						"美元   32.32000 32.86200 32.62000 32.72000\n"+
-						"日圓    0.29160  0.30260  0.29800  0.30200\n"+ 
-						"人民幣  4.89000  5.05200  4.96200  5.01200\n" 
+				"人民幣  4.89000  5.05200  4.96200  5.01200\n"
+		} else {
+			/*
+				strResult = "常用外幣匯率 \n"+
+							"      現金      現金      即期     即期\n"+
+							"幣別	  賣出      買進      賣出     買進\n"+
+							"美元   32.32000 32.86200 32.62000 32.72000\n"+
+							"日圓    0.29160  0.30260  0.29800  0.30200\n"+
+							"人民幣  4.89000  5.05200  4.96200  5.01200\n"
+			*/
+			strResult = ""
+			lbe.botClient.SendImage([]string{from}, "https://linebot.gaze.tw/exrate.png", "https://linebot.gaze.tw/exrate.png")
 		}
-	} 
-        if strings.Contains(strAfterCut,"行動") {
-                if strings.Contains(strAfterCut,"應用") || strings.Contains(strings.ToUpper(strAfterCut), "APP") {
-                        strResult = "</P> 請參考 <A href=\"https://itunes.apple.com/tw/app/xin-guang-yin-xing/id495872725?l=zh&mt=8\"> 新光銀行行動銀行</A>"
-                } else if strings.Contains(strAfterCut,"網頁") {
-                        strResult = "</P> 很抱歉，我們還沒有建置行動網頁，請使用<A href=\"https://www.skbank.com.tw/\">網路銀行</A>或<A href=\"https://itunes.apple.com/tw/app/xin-guang-yin-xing/id495872725?l=zh&mt=8\"> 行動銀行</A>"
-                }
-        }
-	
-	lbe.botClient.SendText([]string{from}, strResult)
+	}
+	if strings.Contains(strAfterCut, "行動") {
+		if strings.Contains(strAfterCut, "應用") || strings.Contains(strings.ToUpper(strAfterCut), "APP") {
+			strResult = "</P> 請參考 <A href=\"https://itunes.apple.com/tw/app/xin-guang-yin-xing/id495872725?l=zh&mt=8\"> 新光銀行行動銀行</A>"
+		} else if strings.Contains(strAfterCut, "網頁") {
+			strResult = "</P> 很抱歉，我們還沒有建置行動網頁，請使用<A href=\"https://www.skbank.com.tw/\">網路銀行</A>或<A href=\"https://itunes.apple.com/tw/app/xin-guang-yin-xing/id495872725?l=zh&mt=8\"> 行動銀行</A>"
+		}
+	}
+	if strResult != "" {
+		lbe.botClient.SendText([]string{from}, strResult)
+	}
 	log.Printf("Received text \"%s\" from %s", text, from)
 }
 
