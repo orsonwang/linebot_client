@@ -59,14 +59,23 @@ func (lbe *LineBotEventHandler) OnTextMessage(from, text string) {
 		if strings.Contains(strAfterCut, "歷史") {
 			strResult = "歷史匯率參考 https://www.skbank.com.tw/RAT/RAT2_Historys.aspx"
 		} else if strings.Contains(strAfterCut, "美元") || strings.Contains(strAfterCut, "美金") {
-			strResult = "      現金買入  現金賣出  即期買入   即期賣出\n" +
-				"美元  32.32000 32.86200 32.62000 32.72000\n"
-		} else if strings.Contains(strAfterCut, "日圓") || strings.Contains(strAfterCut, "日幣") {
-			strResult = "      現金買入  現金賣出  即期買入   即期賣出\n" +
-				"日圓  0.29160  0.30260  0.29800  0.30200\n"
-		} else if strings.Contains(strAfterCut, "日圓") || strings.Contains(strAfterCut, "日幣") {
-			strResult = "       現金買入  現金賣出  即期買入   即期賣出\n" +
-				"人民幣  4.89000  5.05200  4.96200  5.01200\n"
+			strResult = "美元\n" +
+				"現金買入 32.32000\n" +
+				"現金賣出 32.86200\n" +
+				"即期買入 32.62000\n" +
+				"即期賣出 32.72000"
+		} else if strings.Contains(strAfterCut, "日圓") || strings.Contains(strAfterCut, "日幣") || strings.Contains(strAfterCut, "日元") {
+			strResult = "日圓\n" +
+				"現金買入 0.29160\n" +
+				"現金賣出 0.30260\n" +
+				"即期買入 0.29800\n" +
+				"即期賣出 0.30200"
+		} else if strings.Contains(strAfterCut, "人民幣") {
+			strResult = "人民幣\n" +
+				"現金買入 4.89000\n" +
+				"現金賣出 5.05200\n" +
+				"即期買入 4.96200\n" +
+				"即期賣出 5.01200"
 		} else {
 			/*
 				strResult = "常用外幣匯率 \n"+
@@ -82,9 +91,9 @@ func (lbe *LineBotEventHandler) OnTextMessage(from, text string) {
 	}
 	if strings.Contains(strAfterCut, "行動") {
 		if strings.Contains(strAfterCut, "應用") || strings.Contains(strings.ToUpper(strAfterCut), "APP") {
-			strResult = "</P> 請參考 <A href=\"https://itunes.apple.com/tw/app/xin-guang-yin-xing/id495872725?l=zh&mt=8\"> 新光銀行行動銀行</A>"
+			strResult = "</P> 請參考 https://itunes.apple.com/tw/app/xin-guang-yin-xing/id495872725?l=zh&mt=8"
 		} else if strings.Contains(strAfterCut, "網頁") {
-			strResult = "</P> 很抱歉，我們還沒有建置行動網頁，請使用<A href=\"https://www.skbank.com.tw/\">網路銀行</A>或<A href=\"https://itunes.apple.com/tw/app/xin-guang-yin-xing/id495872725?l=zh&mt=8\"> 行動銀行</A>"
+			strResult = "很抱歉，我們還沒有建置行動網頁，請使用 https://www.skbank.com.tw/ 網路銀行或 https://itunes.apple.com/tw/app/xin-guang-yin-xing/id495872725?l=zh&mt=8 行動銀行"
 		}
 	}
 	if strResult != "" {
