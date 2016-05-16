@@ -28,6 +28,7 @@ func main() {
 	mainEventHandler.SetLineBotClient(mainBotClient)
 
 	http.HandleFunc("/callback", callbackHandler)
+
 	port := os.Getenv("LINEBOT_PORT")
 	addr := fmt.Sprintf(":%s", port)
 	http.ListenAndServe(addr, nil)

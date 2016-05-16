@@ -47,7 +47,10 @@ func (lbe *LineBotEventHandler) OnTextMessage(from, text string) {
 
 	// 以下只是一個非智慧型示範，跟以上斷字無關
 	strAfterCut := text
-	strResult := text
+	strResult := "目前系統功能如下\n" +
+		"利率(預設為台幣),外幣利率\n" +
+		"匯率(預設為總表),美元匯率,日圓匯率與人民幣匯率\n" +
+		"歷史匯率"
 	if strings.Contains(strAfterCut, "利率") {
 		if strings.Contains(strAfterCut, "外幣") {
 			strResult = "常用外幣利率表\n 美元 定存 2.3% 活存 1.8% \n 日圓 定存 0.1% 活存 0.1%"
