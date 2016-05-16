@@ -36,13 +36,17 @@ func (lbe *LineBotEventHandler) OnBlockedAccountOperation(mids []string) {
 
 // OnTextMessage ...
 func (lbe *LineBotEventHandler) OnTextMessage(from, text string) {
+/*
 	chanAfterCut := lbe.seg.Cut(text, false) // 進行精確斷字，斷字結果以空白間隔，後續就可以用它做語意操作
 	strAfterCut := "" // 因為Jiebago的輸出是channel，所以先把它轉換成字串陣列
 	for strCutMeta := range chanAfterCut {
 		strAfterCut += "," + strCutMeta
         }	
+*/
+
 // 以下只是一個非智慧型示範，跟以上斷字無關
-    var strResult string
+	strAfterCut := text
+    strResult := text
 	if strings.Contains(strAfterCut,"利率") {
 		if strings.Contains(strAfterCut,"外幣") {
 			strResult = "常用外幣利率表\n 美元 定存 2.3% 活存 1.8% \n 日圓 定存 0.1% 活存 0.1%"
