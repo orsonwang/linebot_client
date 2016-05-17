@@ -26,6 +26,7 @@ func main() {
 
 	mainEventHandler = new(LineBotEventHandler)
 	mainEventHandler.SetLineBotClient(mainBotClient)
+	//mainEventHandler.InitSegmenter()
 
 	http.HandleFunc("/callback", callbackHandler)
 
