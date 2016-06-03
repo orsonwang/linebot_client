@@ -1,0 +1,5 @@
+package: linebot_client
+import:
+- package: github.com/line/line-bot-sdk-go
+  subpackages:
+  - linebot

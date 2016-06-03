@@ -2,42 +2,54 @@ package main
 
 import (
 	"fmt"
-	"log"
+	logger "log"
 	"net/http"
 	"os"
 	"strconv"
 
 	"github.com/line/line-bot-sdk-go/linebot"
+	"github.com/nats-io/nats"
 )
 
-var mainBotClient *linebot.Client
-var mainEventHandler *LineBotEventHandler
+var mainLineBotClient *linebot.Client
+var mainLineEventHandler *LineBotEventHandler
+var log *logger.Logger
+var nc *nats.Conn
 
 func main() {
+	f, _ := os.OpenFile("./linebot.log", os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0660)
+	log = new(logger.Logger)
+	log.SetOutput(f)
+
 	strID := os.Getenv("LINE_CHANNEL_ID")
-	channelID, err := strconv.ParseInt(strID, 10, 64)
+	lineChannelID, err := strconv.ParseInt(strID, 10, 64)
 	if err != nil {
 		log.Fatal("Wrong environment setting about LINE_CHANNEL_ID")
 	}
-	channelSecret := os.Getenv("LINE_CHANNEL_SECRET")
-	mid := os.Getenv("LINE_MID")
+	lineChannelSecret := os.Getenv("LINE_CHANNEL_SECRET")
+	lineMID := os.Getenv("LINE_MID")
+	mainLineBotClient, _ = linebot.NewClient(lineChannelID, lineChannelSecret, lineMID)
 
-	mainBotClient, _ = linebot.NewClient(channelID, channelSecret, mid)
+	mainLineEventHandler = new(LineBotEventHandler)
+	mainLineEventHandler.SetLineBotClient(mainLineBotClient)
 
-	mainEventHandler = new(LineBotEventHandler)
-	mainEventHandler.SetLineBotClient(mainBotClient)
-	//mainEventHandler.InitSegmenter()
+	urls := "nats://localhost:4222"
+	nc, err = nats.Connect(urls)
+	if err != nil {
+		log.Fatalf("Can't connect: %v\n", err)
+	}
+	defer nc.Close()
 
-	http.HandleFunc("/callback", callbackHandler)
+	http.HandleFunc("/callback", lineCallbackHandler)
 
 	port := os.Getenv("LINEBOT_PORT")
 	addr := fmt.Sprintf(":%s", port)
 	http.ListenAndServe(addr, nil)
 }
 
-func callbackHandler(w http.ResponseWriter, r *http.Request) {
-	log.Println("=== callback ===")
-	received, err := mainBotClient.ParseRequest(r)
+func lineCallbackHandler(w http.ResponseWriter, r *http.Request) {
+	log.Println("=== Line Callback ===")
+	received, err := mainLineBotClient.ParseRequest(r)
 	if err != nil {
 		log.Print(err)
 		return
@@ -46,13 +58,13 @@ func callbackHandler(w http.ResponseWriter, r *http.Request) {
 		content := result.Content()
 		switch content.OpType {
 		case linebot.OpTypeAddedAsFriend:
-			mainEventHandler.OnAddedAsFriendOperation(result.RawContent.Params)
+			mainLineEventHandler.OnAddedAsFriendOperation(result.RawContent.Params)
 			break
 		case linebot.OpTypeBlocked:
-			mainEventHandler.OnBlockedAccountOperation(result.RawContent.Params)
+			mainLineEventHandler.OnBlockedAccountOperation(result.RawContent.Params)
 			break
 		default:
-			handleContentByType(mainEventHandler, content)
+			handleContentByType(mainLineEventHandler, content)
 			break
 		}
 	}
