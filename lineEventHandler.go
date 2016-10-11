@@ -3,7 +3,7 @@ package main
 import (
 	//	logger "log"
 	"regexp"
-	"strings"
+	//	"strings"
 	"time"
 
 	"github.com/line/line-bot-sdk-go/linebot"
@@ -36,11 +36,11 @@ func (s *LineBotEventHandler) matchString(pattern, text string) (result bool) {
 
 // OnTextMessage ...
 func (s *LineBotEventHandler) OnTextMessage(from, text string) {
-	strAfterCut := strings.ToUpper(text)
+	//	strAfterCut := strings.ToUpper(text)
 	log.Printf("Received text \"%s\" from %s", text, from)
 
 	subj := "aitc.text.service"
-	msg, err := nc.Request(subj, []byte(strAfterCut), 1*time.Second)
+	msg, err := nc.Request(subj, []byte(text), 1*time.Second)
 	if err != nil {
 		log.Fatalf("Error in Request: %v\n", err)
 	}
