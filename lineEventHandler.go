@@ -19,16 +19,6 @@ func (s *LineBotEventHandler) SetLineBotClient(bc *linebot.Client) {
 	s.botClient = bc
 }
 
-// OnAddedAsFriendOperation ...
-func (s *LineBotEventHandler) OnAddedAsFriendOperation(mids []string) {
-	s.botClient.SendText(mids, "感謝你加入....！")
-}
-
-// OnBlockedAccountOperation ...
-func (s *LineBotEventHandler) OnBlockedAccountOperation(mids []string) {
-	s.botClient.SendText(mids, "被封鎖了")
-}
-
 func (s *LineBotEventHandler) matchString(pattern, text string) (result bool) {
 	result, _ = regexp.MatchString(pattern, text)
 	return
@@ -36,7 +26,6 @@ func (s *LineBotEventHandler) matchString(pattern, text string) (result bool) {
 
 // OnTextMessage ...
 func (s *LineBotEventHandler) OnTextMessage(from, text string) {
-	//	strAfterCut := strings.ToUpper(text)
 	log.Printf("Received text \"%s\" from %s", text, from)
 
 	subj := "aitc.text.service"
@@ -46,14 +35,15 @@ func (s *LineBotEventHandler) OnTextMessage(from, text string) {
 	}
 	strResult := string(msg.Data)
 	if len(strResult) != 0 {
-		s.botClient.SendText([]string{from}, strResult)
+		if _, err = s.botClient.ReplyMessage(from, linebot.NewTextMessage(strResult)).Do(); err != nil {
+			log.Printf("Send message \"%s\" to \"%s\" fail, error:%d", strResult, from, err)
+		}
 	} else {
-		s.botClient.SendImage([]string{from},
-			"https://linebot.gaze.tw/exrate.png",
-			"https://linebot.gaze.tw/exrate.png")
+
 	}
 }
 
+/*
 // OnImageMessage ...
 func (s *LineBotEventHandler) OnImageMessage(from string, rc *linebot.ReceivedContent) {
 	s.botClient.SendText([]string{from}, "收到一張照片")
@@ -89,3 +79,4 @@ func (s *LineBotEventHandler) OnContactMessage(from, MID, displayName string) {
 	s.botClient.SendText([]string{from}, "收到聯絡人資料")
 	log.Print("=== Received Contact ===")
 }
+*/
