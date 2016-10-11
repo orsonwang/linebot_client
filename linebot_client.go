@@ -21,8 +21,10 @@ func main() {
 	log = new(logger.Logger)
 	log.SetOutput(f)
 
-	mainLineBotClient, _ = linebot.New(os.Getenv("LINE_CHANNEL_SECRET"), os.Getenv("LINE_CHANNEL_TOKEN"))
-
+	mainLineBotClient, err = linebot.New(os.Getenv("LINE_CHANNEL_SECRET"), os.Getenv("LINE_CHANNEL_TOKEN"))
+	if err != nil {
+		log.Fatalf("Linebot init error: %s\n", err)
+	}
 	mainLineEventHandler = new(LineBotEventHandler)
 	mainLineEventHandler.SetLineBotClient(mainLineBotClient)
 
@@ -44,7 +46,7 @@ func lineCallbackHandler(w http.ResponseWriter, r *http.Request) {
 	log.Println("=== Line Callback ===")
 	events, err := mainLineBotClient.ParseRequest(r)
 	if err != nil {
-		log.Print(err)
+		log.Printf("Parse error: %s\n", err)
 		return
 	}
 	for _, event := range events {
